@@ -23,7 +23,7 @@ let openUpdateNoteButton = document.getElementById('openUpdateNoteButton') as HT
 openUpdateNoteButton.addEventListener('click', openUpdateNotePopup);
 
 let closeUpdateNoteButton = document.getElementById('closeUpdateNoteButton') as HTMLButtonElement;
-closeNewNoteButton.addEventListener('click',closeUpdateNotePopup);
+closeUpdateNoteButton.addEventListener('click',closeUpdateNotePopup);
 
 let newNotePopup = document.getElementById('newNoteDiv') as HTMLElement;
 let updateNotePopup = document.getElementById('updateNoteDiv') as HTMLElement;
@@ -43,14 +43,19 @@ function openUpdateNotePopup(event: Event) {
     updateNotePopup.classList.add('active');
     const item = event.target as Element;
 
-    let category = item.parentElement as HTMLElement;
+    let note = item.parentElement as HTMLElement;
 
-    let oldCategory = (category.querySelector('.categoryName') as HTMLElement);
+    let oldNoteName = (note.querySelector('.noteTitle') as HTMLElement).innerText;
+    let oldNoteContent = (note.querySelector('.noteContent') as HTMLElement).innerText;
+    
+    (updateNotePopup.querySelector('#updateNoteNameHidden') as HTMLInputElement).value = oldNoteName;
+    (updateNotePopup.querySelector('#updateNoteTitle') as HTMLInputElement).value = oldNoteName;
+    (updateNotePopup.querySelector('#updateNoteContentArea') as HTMLInputElement).value = oldNoteContent;
     overlay.classList.add('active');
 }
 
 function closeUpdateNotePopup() {
-    newNotePopup.classList.remove('active');
+    updateNotePopup.classList.remove('active');
     overlay.classList.remove('active');
 }
 
@@ -83,23 +88,32 @@ function createNote() {
     }
 }
 
-function updateNote() {
+function updateNote(event: Event) {
+    const item = event.target as Element;
+    let updateNoteDiv = item.parentElement?.parentElement as HTMLElement;
+    let oldName = (updateNoteDiv.querySelector('#updateNoteNameHidden') as HTMLInputElement).value;
 
     if(selectedCategory !== undefined) {
 
-        let noteTitleInput = document.getElementById('newNoteTitle') as HTMLInputElement
-        let noteContentInput = document.getElementById('noteContentArea') as HTMLInputElement
+        let noteTitleInput = document.getElementById('updateNoteTitle') as HTMLInputElement
+        let noteContentInput = document.getElementById('updateNoteContentArea') as HTMLInputElement
 
         if (noteTitleInput.value.trim().length  && noteContentInput.value.trim().length) {
 
-            let newNoteTitle: string = (document.getElementById('newNoteTitle') as HTMLInputElement).value;
-            (document.getElementById('newNoteTitle') as HTMLInputElement).value = '';
-            let newNoteContent: string = (document.getElementById('noteContentArea') as HTMLInputElement).value;
-            (document.getElementById('noteContentArea') as HTMLInputElement).value = '';
-            let newNote = new Note(newNoteTitle, newNoteContent, selectedCategory.name);
-
-            saveNote(newNote);
+            let updateNoteTitle: string = noteTitleInput.value;
+            let updateNoteContent: string = noteContentInput.value;
+            
+            selectedCategory.notes.forEach(note => {
+                    if(note.title === oldName) {
+                        note.title = updateNoteTitle;
+                        note.content = updateNoteContent;
+                    }
+            });
         }
+        localStorage.setItem('categories',JSON.stringify(categories));
+        
+        reRenderNotes(selectedCategory);
+        reRenderCategories();
     }
 }
 

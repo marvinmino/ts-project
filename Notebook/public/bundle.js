@@ -75,12 +75,19 @@ System.register("app", ["Category", "Note"], function (exports_3, context_3) {
         newNotePopup.classList.remove('active');
         overlay.classList.remove('active');
     }
-    function openUpdateNotePopup() {
-        newNotePopup.classList.add('active');
+    function openUpdateNotePopup(event) {
+        updateNotePopup.classList.add('active');
+        const item = event.target;
+        let note = item.parentElement;
+        let oldNoteName = note.querySelector('.noteTitle').innerText;
+        let oldNoteContent = note.querySelector('.noteContent').innerText;
+        updateNotePopup.querySelector('#updateNoteNameHidden').value = oldNoteName;
+        updateNotePopup.querySelector('#updateNoteTitle').value = oldNoteName;
+        updateNotePopup.querySelector('#updateNoteContentArea').value = oldNoteContent;
         overlay.classList.add('active');
     }
     function closeUpdateNotePopup() {
-        newNotePopup.classList.remove('active');
+        updateNotePopup.classList.remove('active');
         overlay.classList.remove('active');
     }
     function createNote() {
@@ -97,18 +104,27 @@ System.register("app", ["Category", "Note"], function (exports_3, context_3) {
             }
         }
     }
-    function updateNote() {
+    function updateNote(event) {
+        var _a;
+        const item = event.target;
+        let updateNoteDiv = (_a = item.parentElement) === null || _a === void 0 ? void 0 : _a.parentElement;
+        let oldName = updateNoteDiv.querySelector('#updateNoteNameHidden').value;
         if (selectedCategory !== undefined) {
-            let noteTitleInput = document.getElementById('newNoteTitle');
-            let noteContentInput = document.getElementById('noteContentArea');
+            let noteTitleInput = document.getElementById('updateNoteTitle');
+            let noteContentInput = document.getElementById('updateNoteContentArea');
             if (noteTitleInput.value.trim().length && noteContentInput.value.trim().length) {
-                let newNoteTitle = document.getElementById('newNoteTitle').value;
-                document.getElementById('newNoteTitle').value = '';
-                let newNoteContent = document.getElementById('noteContentArea').value;
-                document.getElementById('noteContentArea').value = '';
-                let newNote = new Note_1.Note(newNoteTitle, newNoteContent, selectedCategory.name);
-                saveNote(newNote);
+                let updateNoteTitle = noteTitleInput.value;
+                let updateNoteContent = noteContentInput.value;
+                selectedCategory.notes.forEach(note => {
+                    if (note.title === oldName) {
+                        note.title = updateNoteTitle;
+                        note.content = updateNoteContent;
+                    }
+                });
             }
+            localStorage.setItem('categories', JSON.stringify(categories));
+            reRenderNotes(selectedCategory);
+            reRenderCategories();
         }
     }
     function createCategory() {
@@ -215,7 +231,7 @@ System.register("app", ["Category", "Note"], function (exports_3, context_3) {
                 let updateNoteButton = document.createElement('button');
                 updateNoteButton.classList.add('updateNoteButton');
                 updateNoteButton.innerHTML = '<i class="fa fa-edit"></i>';
-                updateNoteButton.addEventListener('click', openNewNotePopup);
+                updateNoteButton.addEventListener('click', openUpdateNotePopup);
                 noteDiv.appendChild(noteTitle);
                 noteDiv.appendChild(noteContent);
                 noteDiv.appendChild(deleteNoteButton);
@@ -360,7 +376,7 @@ System.register("app", ["Category", "Note"], function (exports_3, context_3) {
             openUpdateNoteButton = document.getElementById('openUpdateNoteButton');
             openUpdateNoteButton.addEventListener('click', openUpdateNotePopup);
             closeUpdateNoteButton = document.getElementById('closeUpdateNoteButton');
-            closeNewNoteButton.addEventListener('click', closeUpdateNotePopup);
+            closeUpdateNoteButton.addEventListener('click', closeUpdateNotePopup);
             newNotePopup = document.getElementById('newNoteDiv');
             updateNotePopup = document.getElementById('updateNoteDiv');
             overlay = document.getElementById('overlay');

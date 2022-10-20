@@ -85,7 +85,18 @@
     pointer-events: none;
 
 }
-
+.updateNoteDiv {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    transition: 200ms ease-in-out;
+    border: 1px solid black;
+    z-index: 10;
+    background-color: white;
+    width: 500px;
+    max-width: 80%;
+}
 .newNoteDiv {
     position: fixed;
     top: 50%;
@@ -98,6 +109,10 @@
     width: 500px;
     max-width: 80%;
 }
+.updateNoteDiv.active {
+    transform: translate(-50%, -50%) scale(1);
+
+}
 
 .newNoteDiv.active {
     transform: translate(-50%, -50%) scale(1);
@@ -105,6 +120,15 @@
 }
 
 .newNoteHeader {
+    padding: 10px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid black;
+    background-color: #dae4f5;
+}
+
+.updateNoteHeader {
     padding: 10px 15px;
     display: flex;
     justify-content: space-between;
@@ -127,12 +151,32 @@
     font-weight: bold;
 }
 
+.updateNoteHeader .close-button {
+    cursor: pointer;
+    border: none;
+    outline: none;
+    background: none;
+    font-size: 1.25rem;
+    font-weight: bold;
+}
+
 .newNoteBody {
     display: flex;
     flex-direction: column;
 }
 
+.updateNoteBody {
+    display: flex;
+    flex-direction: column;
+}
+
 #newNoteTitle {
+    padding: 0.5rem;
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+#updateNoteTitle {
     padding: 0.5rem;
     font-size: 1rem;
     font-weight: bold;
