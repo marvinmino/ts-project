@@ -9,6 +9,8 @@
         crossorigin="anonymous" referrerpolicy="no-referrer" />
   <link rel="stylesheet" href="style.css">
   <title>Document</title>
+  <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
 </head>
 <body>
 <div id="mainDiv">
@@ -77,6 +79,26 @@
 <script src="bundle.js"></script>
 <script type="module">
   System.import('app');
+</script>
+<script>
+  $( "#categoriesDiv" ).sortable({
+    update: function( event, ui ) {
+      categories = JSON.parse(localStorage.getItem('categories'));
+      domCategories = $('.category');
+
+      let index = 1;
+      for(let i = 0; i < domCategories.length; i++) {
+        domName = domCategories[i].children[3].innerText;
+
+        for(let j = 0; j < categories.length; j++)
+          if(categories[j].name == domName){
+            categories[j].order = index;
+            index++;
+          }
+      };
+      localStorage.setItem('categories', JSON.stringify(categories));
+      }
+  });
 </script>
 </body>
 </html>

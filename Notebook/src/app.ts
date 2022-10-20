@@ -1,6 +1,7 @@
 import {Category} from "./Category";
 import {Note} from "./Note";
 
+
 let notesDiv = document.getElementById('notesDiv') as Element;
 let catDiv = document.getElementById('categoriesDiv') as Element;
 
@@ -110,6 +111,7 @@ function updateNote(event: Event) {
                     }
             });
         }
+        
         localStorage.setItem('categories',JSON.stringify(categories));
         
         reRenderNotes(selectedCategory);
@@ -120,6 +122,14 @@ function updateNote(event: Event) {
 function createCategory() {
     let catNameInput = document.getElementById('newCategoryName')as HTMLInputElement;
     let categoryName: string = catNameInput.value;
+    let order: number;
+
+    if(categories.length === 0){
+        order = 1;
+    }
+    else {
+        order = categories[categories.length -1].order + 1;
+    }
 
     if(categoryName.trim().length) {
 
@@ -127,7 +137,7 @@ function createCategory() {
 
         let notes: Note[] = [];
 
-        let newCategory: Category = new Category(categoryName, notes);
+        let newCategory: Category = new Category(categoryName, notes, order);
 
         selectedCategory = newCategory;
 
@@ -186,62 +196,69 @@ function getCategories(): Category[] {
 }
 
 function renderCategories(categories: Category[]){
-
-
-    categories.forEach(cat => {
-
-        let categoryDiv = document.createElement('div');
-        categoryDiv.classList.add('category');
-
-        let categoryName = document.createElement('h3');
-        categoryName.classList.add('categoryName');
-        categoryName.innerText = cat.name;
-
-        let notesCount = document.createElement('p');
-        notesCount.classList.add('noteCount');
-        notesCount.innerText = String(cat.notes.length);
-
-        let selectedIndicatorDiv = document.createElement('div');
-        selectedIndicatorDiv.classList.add('selectedIndicator');
-
-        let deleteCatButton = document.createElement('button');
-        deleteCatButton.classList.add('deleteCatButton');
-        deleteCatButton.innerHTML = '<i class="fa fa-light fa-trash"></i>';
-        deleteCatButton.addEventListener('click', deleteCategory);
-
-        let updateCatButton = document.createElement('button');
-        updateCatButton.classList.add('updateCatButton');
-        updateCatButton.innerHTML = '<i class="fa fa-edit"></i>';
-        updateCatButton.addEventListener('click', updateCategory);
-
-        let categoryTextInput = document.createElement('input');
-        categoryTextInput.classList.add('categoryTextInput');
-        categoryTextInput.setAttribute('type', 'text');
-        categoryTextInput.setAttribute('value', cat.name);
-
-        let categoryUpdateButton = document.createElement('button');
-        categoryUpdateButton.classList.add('categoryUpdateButton');
-        categoryUpdateButton.innerHTML = 'Submit';
-        categoryUpdateButton.addEventListener('click', updateNameCategory);
-
-        let updateCategoryDiv = document.createElement('div');
-        updateCategoryDiv.classList.add('updateCategoryDiv');
-
-        updateCategoryDiv.appendChild(categoryTextInput);
-        updateCategoryDiv.appendChild(categoryUpdateButton);
-
-        categoryDiv.appendChild(selectedIndicatorDiv);
-        categoryDiv.appendChild(updateCatButton);
-        categoryDiv.appendChild(deleteCatButton);
-        categoryDiv.appendChild(categoryName);
-        categoryDiv.appendChild(notesCount);
-        categoryDiv.appendChild(updateCategoryDiv);
-
-        catDiv.appendChild(categoryDiv);
-        updateCategoryDiv.hidden = true;
-
-        categoryDiv.addEventListener('click',clickCategory);
-    });
+    for (let i = 1; i <= categories.length + 1; i++) {
+        categories.forEach(cat => {
+            if(cat.order === i){
+                let categoryDiv = document.createElement('div');
+                categoryDiv.classList.add('category');
+        
+                let categoryName = document.createElement('h3');
+                categoryName.classList.add('categoryName');
+                categoryName.innerText = cat.name;
+        
+                let order = document.createElement('input');
+                order.classList.add('order');
+                order.value = '' + cat.order;
+                order.hidden = true;
+        
+                let notesCount = document.createElement('p');
+                notesCount.classList.add('noteCount');
+                notesCount.innerText = String(cat.notes.length);
+        
+                let selectedIndicatorDiv = document.createElement('div');
+                selectedIndicatorDiv.classList.add('selectedIndicator');
+        
+                let deleteCatButton = document.createElement('button');
+                deleteCatButton.classList.add('deleteCatButton');
+                deleteCatButton.innerHTML = '<i class="fa fa-light fa-trash"></i>';
+                deleteCatButton.addEventListener('click', deleteCategory);
+        
+                let updateCatButton = document.createElement('button');
+                updateCatButton.classList.add('updateCatButton');
+                updateCatButton.innerHTML = '<i class="fa fa-edit"></i>';
+                updateCatButton.addEventListener('click', updateCategory);
+        
+                let categoryTextInput = document.createElement('input');
+                categoryTextInput.classList.add('categoryTextInput');
+                categoryTextInput.setAttribute('type', 'text');
+                categoryTextInput.setAttribute('value', cat.name);
+        
+                let categoryUpdateButton = document.createElement('button');
+                categoryUpdateButton.classList.add('categoryUpdateButton');
+                categoryUpdateButton.innerHTML = 'Submit';
+                categoryUpdateButton.addEventListener('click', updateNameCategory);
+        
+                let updateCategoryDiv = document.createElement('div');
+                updateCategoryDiv.classList.add('updateCategoryDiv');
+        
+                updateCategoryDiv.appendChild(categoryTextInput);
+                updateCategoryDiv.appendChild(categoryUpdateButton);
+        
+                categoryDiv.appendChild(selectedIndicatorDiv);
+                categoryDiv.appendChild(updateCatButton);
+                categoryDiv.appendChild(deleteCatButton);
+                categoryDiv.appendChild(categoryName);
+                categoryDiv.appendChild(notesCount);
+                categoryDiv.appendChild(updateCategoryDiv);
+                categoryDiv.appendChild(order);
+        
+                catDiv.appendChild(categoryDiv);
+                updateCategoryDiv.hidden = true;
+        
+                categoryDiv.addEventListener('click',clickCategory);
+            }
+        });
+    }
 }
 
 function renderNotes(category: Category) {
@@ -333,6 +350,12 @@ function deleteCategory(event: Event) {
                 categories.splice(categories.indexOf(cat),1);
             }
         });
+        
+        let index = 1;
+        categories.forEach(cat => {
+            cat.order = index;
+            index++;
+        });
 
         localStorage.setItem('categories',JSON.stringify(categories));
 
@@ -344,10 +367,8 @@ function deleteCategory(event: Event) {
         }
 
         reRenderNotes(selectedCategory);
-
+        reRenderCategories();
     }
-
-
 }
 
 function updateCategory(event: Event) {
@@ -448,4 +469,6 @@ function reRenderCategories(){
     renderCategories(categories);
 }
 
+
+        
 
