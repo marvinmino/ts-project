@@ -6,16 +6,23 @@ System.register("Note", [], function (exports_1, context_1) {
         setters: [],
         execute: function () {
             Note = class Note {
-                constructor(title, content, categoryName) {
+                constructor(title, content, categoryName, order = 0) {
                     this.title = title;
                     this.content = content;
                     this.categoryName = categoryName;
+                    this.order = order;
                 }
                 getTitle() {
                     return this.title;
                 }
                 setTitle(title) {
                     this.title = title;
+                }
+                getOrder() {
+                    return this.order;
+                }
+                setOrder(order) {
+                    this.order = order;
                 }
                 getContent() {
                     return this.content;
@@ -107,6 +114,12 @@ System.register("app", ["Category", "Note"], function (exports_3, context_3) {
                 let newNoteContent = document.getElementById('noteContentArea').value;
                 document.getElementById('noteContentArea').value = '';
                 let newNote = new Note_1.Note(newNoteTitle, newNoteContent, selectedCategory.name);
+                if (selectedCategory.notes.length === 0) {
+                    newNote.order = 1;
+                }
+                else {
+                    newNote.order = selectedCategory.notes[selectedCategory.notes.length - 1].order + 1;
+                }
                 saveNote(newNote);
             }
         }
@@ -238,29 +251,39 @@ System.register("app", ["Category", "Note"], function (exports_3, context_3) {
     function renderNotes(category) {
         if (category !== undefined) {
             let notes = category.notes;
-            notes.forEach(note => {
-                let noteDiv = document.createElement('div');
-                noteDiv.classList.add('note');
-                let noteTitle = document.createElement('h3');
-                noteTitle.classList.add('noteTitle');
-                noteTitle.innerText = note.title;
-                let noteContent = document.createElement('p');
-                noteContent.classList.add('noteContent');
-                noteContent.innerText = note.content;
-                let deleteNoteButton = document.createElement('button');
-                deleteNoteButton.classList.add('deleteNoteButton');
-                deleteNoteButton.innerHTML = '<i class="fa fa-light fa-trash"></i>';
-                deleteNoteButton.addEventListener('click', deleteNote);
-                let updateNoteButton = document.createElement('button');
-                updateNoteButton.classList.add('updateNoteButton');
-                updateNoteButton.innerHTML = '<i class="fa fa-edit"></i>';
-                updateNoteButton.addEventListener('click', openUpdateNotePopup);
-                noteDiv.appendChild(noteTitle);
-                noteDiv.appendChild(noteContent);
-                noteDiv.appendChild(deleteNoteButton);
-                noteDiv.appendChild(updateNoteButton);
-                notesDiv.appendChild(noteDiv);
-            });
+            for (let i = 1; i <= notes.length + 1; i++) {
+                notes.forEach(note => {
+                    if (note.order === i) {
+                        let noteDiv = document.createElement('div');
+                        noteDiv.classList.add('note');
+                        let noteTitle = document.createElement('h3');
+                        noteTitle.classList.add('noteTitle');
+                        noteTitle.innerText = note.title;
+                        let noteContent = document.createElement('p');
+                        noteContent.classList.add('noteContent');
+                        noteContent.innerText = note.content;
+                        let categoryContent = document.createElement('input');
+                        categoryContent.type = 'text';
+                        categoryContent.value = note.categoryName;
+                        categoryContent.classList.add('categoryName');
+                        categoryContent.hidden = true;
+                        let deleteNoteButton = document.createElement('button');
+                        deleteNoteButton.classList.add('deleteNoteButton');
+                        deleteNoteButton.innerHTML = '<i class="fa fa-light fa-trash"></i>';
+                        deleteNoteButton.addEventListener('click', deleteNote);
+                        let updateNoteButton = document.createElement('button');
+                        updateNoteButton.classList.add('updateNoteButton');
+                        updateNoteButton.innerHTML = '<i class="fa fa-edit"></i>';
+                        updateNoteButton.addEventListener('click', openUpdateNotePopup);
+                        noteDiv.appendChild(noteTitle);
+                        noteDiv.appendChild(categoryContent);
+                        noteDiv.appendChild(noteContent);
+                        noteDiv.appendChild(deleteNoteButton);
+                        noteDiv.appendChild(updateNoteButton);
+                        notesDiv.appendChild(noteDiv);
+                    }
+                });
+            }
         }
     }
     function clickCategory(e) {
@@ -315,6 +338,7 @@ System.register("app", ["Category", "Note"], function (exports_3, context_3) {
             let category = item.parentElement;
             category.querySelector('.categoryName').hidden = true;
             category.querySelector('.noteCount').hidden = true;
+            category.querySelector('.noteCount').hidden = true;
             category.querySelector('.updateCategoryDiv').hidden = false;
         }
     }
@@ -348,6 +372,11 @@ System.register("app", ["Category", "Note"], function (exports_3, context_3) {
                 if (noteTitle == note.title) {
                     notes.splice(notes.indexOf(note), 1);
                 }
+            });
+            let index = 1;
+            notes.forEach(note => {
+                note.order = index;
+                index++;
             });
             localStorage.setItem('categories', JSON.stringify(categories));
             updateNoteCount(selectedCategory);

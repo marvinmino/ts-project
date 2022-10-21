@@ -81,6 +81,40 @@
   System.import('app');
 </script>
 <script>
+  $( "#notesDiv" ).sortable(
+    {
+    update: function( event, ui ) {
+      categories = JSON.parse(localStorage.getItem('categories'));
+      domNotes = $('.note');
+      categoryName = domNotes[0].children[1].value;
+
+      for(let i = 0; i < categories.length; i++) {
+          if(categories[i].name == categoryName){
+            category = categories[i];
+            notes = category.notes;
+            key = i;
+            break;
+          }
+      };
+
+      let index = 1;
+      for(let i = 0; i < domNotes.length; i++) {
+        domName = domNotes[i].children[0].innerText;
+        for(let j = 0; j < notes.length; j++)
+          if(notes[j].title == domName){
+            notes[j].order = index;
+            index++;
+          }
+      };
+      console.log(notes)
+      category.notes = notes;
+      categories[key] = category;
+
+      localStorage.setItem('categories', JSON.stringify(categories));
+      }
+  }
+  );
+
   $( "#categoriesDiv" ).sortable({
     update: function( event, ui ) {
       categories = JSON.parse(localStorage.getItem('categories'));

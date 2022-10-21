@@ -1,12 +1,14 @@
 class Note{
     public title: string;
     public content: string;
+    public order: number;
     public categoryName: string;
 
-    constructor(title: string, content: string, categoryName: string) {
+    constructor(title: string, content: string, categoryName: string, order: number = 0) {
         this.title = title;
         this.content = content;
         this.categoryName = categoryName;
+        this.order = order;
     }
 
     public getTitle() {
@@ -15,6 +17,14 @@ class Note{
 
     public setTitle(title: string) {
         this.title = title;
+    }
+
+    public getOrder() {
+        return this.order
+    }
+
+    public setOrder(order: number) {
+        this.order = order;
     }
 
     public getContent() {
