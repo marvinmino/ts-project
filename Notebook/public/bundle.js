@@ -79,7 +79,7 @@ System.register("Category", [], function (exports_2, context_2) {
 });
 System.register("app", ["Category", "Note"], function (exports_3, context_3) {
     "use strict";
-    var Category_1, Note_1, notesDiv, catDiv, writeNoteButton, updateNoteButton, newCategoryButton, openNewNoteButton, closeNewNoteButton, openUpdateNoteButton, closeUpdateNoteButton, newNotePopup, updateNotePopup, overlay, categories, selectedCategory;
+    var Category_1, Note_1, notesDiv, catDiv, writeNoteButton, updateNoteButton, newCategoryButton, openNewNoteButton, closeNewNoteButton, openUpdateNoteButton, closeUpdateNoteButton, newNotePopup, updateNotePopup, overlay, categories, selectedCategory, oldSelectedCategoryName;
     var __moduleName = context_3 && context_3.id;
     function openNewNotePopup() {
         newNotePopup.classList.add('active');
@@ -145,6 +145,7 @@ System.register("app", ["Category", "Note"], function (exports_3, context_3) {
             localStorage.setItem('categories', JSON.stringify(categories));
             reRenderNotes(selectedCategory);
             reRenderCategories();
+            window.location.reload();
         }
     }
     function createCategory() {
@@ -186,6 +187,7 @@ System.register("app", ["Category", "Note"], function (exports_3, context_3) {
         localStorage.setItem('categories', JSON.stringify(categories));
         updateNoteCount(selectedCategory);
         reRenderNotes(selectedCategory);
+        window.location.reload();
     }
     function getCategories() {
         if (localStorage.length !== 0) {
@@ -202,6 +204,7 @@ System.register("app", ["Category", "Note"], function (exports_3, context_3) {
                 if (cat.order === i) {
                     let categoryDiv = document.createElement('div');
                     categoryDiv.classList.add('category');
+                    categoryDiv.classList.add('droppable');
                     let categoryName = document.createElement('h3');
                     categoryName.classList.add('categoryName');
                     categoryName.innerText = cat.name;
@@ -292,6 +295,7 @@ System.register("app", ["Category", "Note"], function (exports_3, context_3) {
         categories.forEach(cat => {
             if (categoryName == cat.name) {
                 selectedCategory = cat;
+                localStorage.setItem('selectedCategory', categoryName);
             }
         });
         toggleCategories(clickedCategory);
@@ -440,7 +444,16 @@ System.register("app", ["Category", "Note"], function (exports_3, context_3) {
             overlay = document.getElementById('overlay');
             categories = getCategories();
             renderCategories(categories);
-            selectCategory(categories[0]);
+            oldSelectedCategoryName = localStorage.getItem('selectedCategory');
+            selectedCategory = categories[0];
+            for (let i = 0; i < categories.length; i++) {
+                if (categories[i].name == oldSelectedCategoryName) {
+                    selectedCategory = categories[i];
+                    break;
+                }
+                ;
+            }
+            selectCategory(selectedCategory);
             // @ts-ignore
             renderNotes(selectedCategory);
         }

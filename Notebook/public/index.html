@@ -1,138 +1,210 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css"
-        integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A=="
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css"
+    integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
   <link rel="stylesheet" href="style.css">
   <title>Document</title>
   <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
   <script src="https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
 </head>
+
 <body>
-<div id="mainDiv">
+  <div id="mainDiv">
 
-  <div id="leftSideDiv">
-    <div id="notesDiv"></div>
-    <div class="buttonBar">
-      <button class="openNewNoteButton" id="openNewNoteButton">
-        <i class="fa fa-solid fa-circle-plus"></i>
-      </button>
-    </div>
-    <div class="buttonBar">
-      <button class="openUpdateNoteButton" id="openUpdateNoteButton">
-        <i class="fa fa-solid fa-circle-plus"></i>
-      </button>
-    </div>
-  </div>
-
-  <div id="rightSideDiv">
-    <div id="categoriesDiv">
-
-    </div>
-
-    <div class="newCategoryDiv">
-      <div class="newCategoryInputs" >
-        <input placeholder="New Category" id="newCategoryName" type="text">
-        <button id="newCategoryButton">Create</button>
+    <div id="leftSideDiv">
+      <div id="notesDiv"></div>
+      <div class="buttonBar">
+        <button class="openNewNoteButton" id="openNewNoteButton">
+          <i class="fa fa-solid fa-circle-plus"></i>
+        </button>
+      </div>
+      <div class="buttonBar">
+        <button class="openUpdateNoteButton" id="openUpdateNoteButton">
+          <i class="fa fa-solid fa-circle-plus"></i>
+        </button>
       </div>
     </div>
+
+    <div id="rightSideDiv">
+      <div id="categoriesDiv">
+
+      </div>
+
+      <div class="newCategoryDiv">
+        <div class="newCategoryInputs">
+          <input placeholder="New Category" id="newCategoryName" type="text">
+          <button id="newCategoryButton">Create</button>
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+  <div class="newNoteDiv" id="newNoteDiv">
+
+    <div class="newNoteHeader">
+      <div class="title">New Note</div>
+      <button class="close-button" id="closeNewNoteButton">&times;</button>
+    </div>
+    <div class="newNoteBody">
+      <input placeholder="Title" id="newNoteTitle" type="text">
+      <textarea placeholder="Note" name="noteContentArea" id="noteContentArea" cols="30" rows="10"></textarea>
+      <button id="writeNoteButton">Note</button>
+    </div>
   </div>
 
+  <img id="loaderIcon" style="visibility:hidden; display:none"
+    src="https://c.tenor.com/I6kN-6X7nhAAAAAj/loading-buffering.gif" alt="..." />
 
-</div>
-<div class="newNoteDiv" id="newNoteDiv">
-
-  <div class="newNoteHeader">
-    <div class="title">New Note</div>
-    <button class="close-button" id="closeNewNoteButton">&times;</button>
+  <div class="updateNoteDiv" id="updateNoteDiv">
+    <div class="updateNoteHeader">
+      <div class="title">Update Note</div>
+      <button class="close-button" id="closeUpdateNoteButton">&times;</button>
+    </div>
+    <div class="updateNoteBody">
+      <input placeholder="Title" id="updateNoteTitle" type="text">
+      <input id="updateNoteNameHidden" type="text" hidden>
+      <textarea placeholder="Note" name="updateNoteContentArea" id="updateNoteContentArea" cols="30"
+        rows="10"></textarea>
+      <button id="updateNoteButton">Note</button>
+    </div>
   </div>
-  <div class="newNoteBody">
-    <input placeholder="Title" id="newNoteTitle" type="text">
-    <textarea placeholder="Note" name="noteContentArea" id="noteContentArea" cols="30" rows="10"></textarea>
-    <button id="writeNoteButton">Note</button>
-  </div>
-</div>
 
-<div class="updateNoteDiv" id="updateNoteDiv">
+  <div id="overlay"></div>
 
-  <div class="updateNoteHeader">
-    <div class="title">Update Note</div>
-    <button class="close-button" id="closeUpdateNoteButton">&times;</button>
-  </div>
-  <div class="updateNoteBody">
-    <input placeholder="Title" id="updateNoteTitle" type="text">
-    <input id="updateNoteNameHidden" type="text" hidden>
-    <textarea placeholder="Note" name="updateNoteContentArea" id="updateNoteContentArea" cols="30" rows="10"></textarea>
-    <button id="updateNoteButton">Note</button>
-  </div>
-</div>
-
-<div id="overlay"></div>
-
-
-<script src="https://unpkg.com/systemjs@6.11.0/dist/s.js"></script>
-<script src="https://unpkg.com/systemjs@6.11.0/dist/extras/named-register.min.js"></script>
-<script src="bundle.js"></script>
-<script type="module">
-  System.import('app');
-</script>
-<script>
-  $( "#notesDiv" ).sortable(
-    {
-    update: function( event, ui ) {
-      categories = JSON.parse(localStorage.getItem('categories'));
-      domNotes = $('.note');
-      categoryName = domNotes[0].children[1].value;
-
-      for(let i = 0; i < categories.length; i++) {
-          if(categories[i].name == categoryName){
-            category = categories[i];
-            notes = category.notes;
-            key = i;
-            break;
-          }
+  <script src="https://unpkg.com/systemjs@6.11.0/dist/s.js"></script>
+  <script src="https://unpkg.com/systemjs@6.11.0/dist/extras/named-register.min.js"></script>
+  <script src="bundle.js"></script>
+  <script type="module">
+    System.import('app');
+  </script>
+  <script>
+    let categories = JSON.parse(localStorage.getItem('categories'));
+    let oldCategory = localStorage.getItem('selectedCategory');
+    let notes = [];
+    for (let i = 0; i < categories.length; i++) {
+      if (categories[i].name == oldCategory) {
+        notes = categories[i].notes;
+        break;
       };
+    }
+    console.log("selected category: " + oldCategory)
+    console.log("notes length: " + notes.length)
+    console.log("categories length: " + categories.length)
+    $(window).load(function () {
+      var i = setInterval(function () {
+        if (($('.category').length <= categories.length) && ($('.note').length <= notes.length)) {
+          clearInterval(i);
 
-      let index = 1;
-      for(let i = 0; i < domNotes.length; i++) {
-        domName = domNotes[i].children[0].innerText;
-        for(let j = 0; j < notes.length; j++)
-          if(notes[j].title == domName){
-            notes[j].order = index;
-            index++;
-          }
-      };
-      console.log(notes)
-      category.notes = notes;
-      categories[key] = category;
+          $('#loaderIcon').css('visibility', 'hidden');
+          $('#loaderIcon').hide();
 
-      localStorage.setItem('categories', JSON.stringify(categories));
-      }
-  }
-  );
+          $("#notesDiv").sortable(
+            {
+              update: function (event, ui) {
+                categories = JSON.parse(localStorage.getItem('categories'));
+                domNotes = $('.note');
+                categoryName = domNotes[0].children[1].value;
 
-  $( "#categoriesDiv" ).sortable({
-    update: function( event, ui ) {
-      categories = JSON.parse(localStorage.getItem('categories'));
-      domCategories = $('.category');
+                for (let i = 0; i < categories.length; i++) {
+                  if (categories[i].name == categoryName) {
+                    category = categories[i];
+                    notes = category.notes;
+                    key = i;
+                    break;
+                  }
+                };
 
-      let index = 1;
-      for(let i = 0; i < domCategories.length; i++) {
-        domName = domCategories[i].children[3].innerText;
+                let index = 1;
+                for (let i = 0; i < domNotes.length; i++) {
+                  domName = domNotes[i].children[0].innerText;
+                  for (let j = 0; j < notes.length; j++)
+                    if (notes[j].title == domName) {
+                      notes[j].order = index;
+                      index++;
+                    }
+                };
+                category.notes = notes;
+                categories[key] = category;
 
-        for(let j = 0; j < categories.length; j++)
-          if(categories[j].name == domName){
-            categories[j].order = index;
-            index++;
-          }
-      };
-      localStorage.setItem('categories', JSON.stringify(categories));
-      }
-  });
-</script>
+                localStorage.setItem('categories', JSON.stringify(categories));
+              }
+            }
+          );
+
+          $("#categoriesDiv").sortable({
+            update: function (event, ui) {
+              categories = JSON.parse(localStorage.getItem('categories'));
+              domCategories = $('.category');
+
+              let index = 1;
+              for (let i = 0; i < domCategories.length; i++) {
+                domName = domCategories[i].children[3].innerText;
+
+                for (let j = 0; j < categories.length; j++)
+                  if (categories[j].name == domName) {
+                    categories[j].order = index;
+                    index++;
+                  }
+              };
+              localStorage.setItem('categories', JSON.stringify(categories));
+            }
+
+
+          });
+
+          $(".category").droppable({
+            drop: function (event, ui) {
+              categories = JSON.parse(localStorage.getItem('categories'));
+              noteTitle = ui.draggable[0].children[0].innerText;
+              noteContent = ui.draggable[0].children[2].innerText;
+              categoryName = event.target.children[3].innerText;
+              console.log(oldCategory);
+              console.log(noteTitle)
+              console.log(noteContent)
+              for (let i = 0; i < categories.length; i++) {
+                console.log('key: ' + i)
+                console.log('category name: ' + categories[i].name)
+                if (categories[i].name == oldCategory) {
+                  oldKey = i;
+                  notes = categories[i].notes;
+                }
+                if (categories[i].name == categoryName) {
+                  newKey = i;
+                }
+              };
+
+              for (let i = 0; i < notes.length; i++) {
+                if (notes[i].title == noteTitle) {
+                  note = notes[i];
+                  notes.splice(i, 1);
+                  categories[oldKey].notes = notes;
+                  note.categoryName = categoryName;
+                  break;
+                }
+              };
+
+              key = newKey ?? oldKey;
+              console.log(categories[key])
+              categories[key].notes[categories[key].notes.length] = note;
+
+              localStorage.setItem('categories', JSON.stringify(categories));
+              ui.draggable[0].hidden = true;
+              localStorage.setItem('selectedCategory', categoryName);
+              window.location.reload();
+            }
+          });
+        }
+      }, 100);
+      $('#loaderIcon').css('visibility', 'visible');
+      $('#loaderIcon').show();
+    });
+  </script>
 </body>
+
 </html>

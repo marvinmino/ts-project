@@ -203,7 +203,13 @@
     pointer-events: none;
 
 }
-
+#loaderIcon{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+}
 #overlay.active {
     opacity: 1;
     pointer-events: all;

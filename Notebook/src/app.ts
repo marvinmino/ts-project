@@ -1,6 +1,5 @@
-import {Category} from "./Category";
-import {Note} from "./Note";
-
+import { Category } from "./Category";
+import { Note } from "./Note";
 
 let notesDiv = document.getElementById('notesDiv') as Element;
 let catDiv = document.getElementById('categoriesDiv') as Element;
@@ -18,13 +17,13 @@ let openNewNoteButton = document.getElementById('openNewNoteButton') as HTMLButt
 openNewNoteButton.addEventListener('click', openNewNotePopup);
 
 let closeNewNoteButton = document.getElementById('closeNewNoteButton') as HTMLButtonElement;
-closeNewNoteButton.addEventListener('click',closeNewNotePopup);
+closeNewNoteButton.addEventListener('click', closeNewNotePopup);
 
 let openUpdateNoteButton = document.getElementById('openUpdateNoteButton') as HTMLButtonElement;
 openUpdateNoteButton.addEventListener('click', openUpdateNotePopup);
 
 let closeUpdateNoteButton = document.getElementById('closeUpdateNoteButton') as HTMLButtonElement;
-closeUpdateNoteButton.addEventListener('click',closeUpdateNotePopup);
+closeUpdateNoteButton.addEventListener('click', closeUpdateNotePopup);
 
 let newNotePopup = document.getElementById('newNoteDiv') as HTMLElement;
 let updateNotePopup = document.getElementById('updateNoteDiv') as HTMLElement;
@@ -48,7 +47,7 @@ function openUpdateNotePopup(event: Event) {
 
     let oldNoteName = (note.querySelector('.noteTitle') as HTMLElement).innerText;
     let oldNoteContent = (note.querySelector('.noteContent') as HTMLElement).innerText;
-    
+
     (updateNotePopup.querySelector('#updateNoteNameHidden') as HTMLInputElement).value = oldNoteName;
     (updateNotePopup.querySelector('#updateNoteTitle') as HTMLInputElement).value = oldNoteName;
     (updateNotePopup.querySelector('#updateNoteContentArea') as HTMLInputElement).value = oldNoteContent;
@@ -64,19 +63,31 @@ let categories: Category[] = getCategories();
 let selectedCategory: Category;
 
 renderCategories(categories);
-selectCategory(categories[0]);
+
+let oldSelectedCategoryName = localStorage.getItem('selectedCategory');
+
+selectedCategory = categories[0];
+for (let i = 0; i < categories.length; i++) {
+    if (categories[i].name == oldSelectedCategoryName) {
+        selectedCategory = categories[i];
+        break;
+    };
+}
+
+selectCategory(selectedCategory);
+
 // @ts-ignore
 renderNotes(selectedCategory);
 
 
 function createNote() {
 
-    if(selectedCategory !== undefined) {
+    if (selectedCategory !== undefined) {
 
         let noteTitleInput = document.getElementById('newNoteTitle') as HTMLInputElement
         let noteContentInput = document.getElementById('noteContentArea') as HTMLInputElement
 
-        if (noteTitleInput.value.trim().length  && noteContentInput.value.trim().length) {
+        if (noteTitleInput.value.trim().length && noteContentInput.value.trim().length) {
 
             let newNoteTitle: string = (document.getElementById('newNoteTitle') as HTMLInputElement).value;
             (document.getElementById('newNoteTitle') as HTMLInputElement).value = '';
@@ -84,11 +95,11 @@ function createNote() {
             (document.getElementById('noteContentArea') as HTMLInputElement).value = '';
             let newNote = new Note(newNoteTitle, newNoteContent, selectedCategory.name);
 
-            if(selectedCategory.notes.length === 0){
+            if (selectedCategory.notes.length === 0) {
                 newNote.order = 1;
             }
             else {
-                newNote.order = selectedCategory.notes[selectedCategory.notes.length -1].order + 1;
+                newNote.order = selectedCategory.notes[selectedCategory.notes.length - 1].order + 1;
             }
 
             saveNote(newNote);
@@ -101,44 +112,45 @@ function updateNote(event: Event) {
     let updateNoteDiv = item.parentElement?.parentElement as HTMLElement;
     let oldName = (updateNoteDiv.querySelector('#updateNoteNameHidden') as HTMLInputElement).value;
 
-    if(selectedCategory !== undefined) {
+    if (selectedCategory !== undefined) {
 
         let noteTitleInput = document.getElementById('updateNoteTitle') as HTMLInputElement
         let noteContentInput = document.getElementById('updateNoteContentArea') as HTMLInputElement
 
-        if (noteTitleInput.value.trim().length  && noteContentInput.value.trim().length) {
+        if (noteTitleInput.value.trim().length && noteContentInput.value.trim().length) {
 
             let updateNoteTitle: string = noteTitleInput.value;
             let updateNoteContent: string = noteContentInput.value;
-            
+
             selectedCategory.notes.forEach(note => {
-                    if(note.title === oldName) {
-                        note.title = updateNoteTitle;
-                        note.content = updateNoteContent;
-                    }
+                if (note.title === oldName) {
+                    note.title = updateNoteTitle;
+                    note.content = updateNoteContent;
+                }
             });
         }
-        
-        localStorage.setItem('categories',JSON.stringify(categories));
-        
+
+        localStorage.setItem('categories', JSON.stringify(categories));
+
         reRenderNotes(selectedCategory);
         reRenderCategories();
+        window.location.reload();
     }
 }
 
 function createCategory() {
-    let catNameInput = document.getElementById('newCategoryName')as HTMLInputElement;
+    let catNameInput = document.getElementById('newCategoryName') as HTMLInputElement;
     let categoryName: string = catNameInput.value;
     let order: number;
 
-    if(categories.length === 0){
+    if (categories.length === 0) {
         order = 1;
     }
     else {
-        order = categories[categories.length -1].order + 1;
+        order = categories[categories.length - 1].order + 1;
     }
 
-    if(categoryName.trim().length) {
+    if (categoryName.trim().length) {
 
         catNameInput.value = '';
 
@@ -161,9 +173,9 @@ function updateNoteCount(category: Category) {
 
     for (let i = 0; i < catElms.length; i++) {
 
-        let categoryName  = (catElms[i].querySelector('.categoryName') as HTMLElement).innerText;
+        let categoryName = (catElms[i].querySelector('.categoryName') as HTMLElement).innerText;
 
-        if(category.name === categoryName) {
+        if (category.name === categoryName) {
 
             (catElms[i].querySelector('.noteCount') as HTMLElement).innerText = String(category.notes.length);
 
@@ -182,75 +194,76 @@ function saveCategory(category: Category) {
 function saveNote(newNote: Note) {
 
     selectedCategory.notes.push(newNote);
-
-    localStorage.setItem('categories',JSON.stringify(categories));
+    localStorage.setItem('categories', JSON.stringify(categories));
 
     updateNoteCount(selectedCategory);
 
     reRenderNotes(selectedCategory);
 
+    window.location.reload();
 }
 
 function getCategories(): Category[] {
 
-    if(localStorage.length !== 0) {
+    if (localStorage.length !== 0) {
         let cats: any = localStorage.getItem('categories');
         return JSON.parse(cats);
-    }else {
+    } else {
         return []
     }
 
 }
 
-function renderCategories(categories: Category[]){
+function renderCategories(categories: Category[]) {
     for (let i = 1; i <= categories.length + 1; i++) {
         categories.forEach(cat => {
-            if(cat.order === i){
+            if (cat.order === i) {
                 let categoryDiv = document.createElement('div');
                 categoryDiv.classList.add('category');
-        
+                categoryDiv.classList.add('droppable');
+
                 let categoryName = document.createElement('h3');
                 categoryName.classList.add('categoryName');
                 categoryName.innerText = cat.name;
-        
+
                 let order = document.createElement('input');
                 order.classList.add('order');
                 order.value = '' + cat.order;
                 order.hidden = true;
-        
+
                 let notesCount = document.createElement('p');
                 notesCount.classList.add('noteCount');
                 notesCount.innerText = String(cat.notes.length);
-        
+
                 let selectedIndicatorDiv = document.createElement('div');
                 selectedIndicatorDiv.classList.add('selectedIndicator');
-        
+
                 let deleteCatButton = document.createElement('button');
                 deleteCatButton.classList.add('deleteCatButton');
                 deleteCatButton.innerHTML = '<i class="fa fa-light fa-trash"></i>';
                 deleteCatButton.addEventListener('click', deleteCategory);
-        
+
                 let updateCatButton = document.createElement('button');
                 updateCatButton.classList.add('updateCatButton');
                 updateCatButton.innerHTML = '<i class="fa fa-edit"></i>';
                 updateCatButton.addEventListener('click', updateCategory);
-        
+
                 let categoryTextInput = document.createElement('input');
                 categoryTextInput.classList.add('categoryTextInput');
                 categoryTextInput.setAttribute('type', 'text');
                 categoryTextInput.setAttribute('value', cat.name);
-        
+
                 let categoryUpdateButton = document.createElement('button');
                 categoryUpdateButton.classList.add('categoryUpdateButton');
                 categoryUpdateButton.innerHTML = 'Submit';
                 categoryUpdateButton.addEventListener('click', updateNameCategory);
-        
+
                 let updateCategoryDiv = document.createElement('div');
                 updateCategoryDiv.classList.add('updateCategoryDiv');
-        
+
                 updateCategoryDiv.appendChild(categoryTextInput);
                 updateCategoryDiv.appendChild(categoryUpdateButton);
-        
+
                 categoryDiv.appendChild(selectedIndicatorDiv);
                 categoryDiv.appendChild(updateCatButton);
                 categoryDiv.appendChild(deleteCatButton);
@@ -258,11 +271,11 @@ function renderCategories(categories: Category[]){
                 categoryDiv.appendChild(notesCount);
                 categoryDiv.appendChild(updateCategoryDiv);
                 categoryDiv.appendChild(order);
-        
+
                 catDiv.appendChild(categoryDiv);
                 updateCategoryDiv.hidden = true;
-        
-                categoryDiv.addEventListener('click',clickCategory);
+
+                categoryDiv.addEventListener('click', clickCategory);
             }
         });
     }
@@ -270,21 +283,21 @@ function renderCategories(categories: Category[]){
 
 function renderNotes(category: Category) {
 
-    
-    if(category !== undefined) {
+
+    if (category !== undefined) {
         let notes = category.notes;
 
         for (let i = 1; i <= notes.length + 1; i++) {
-                notes.forEach(note => {
-                    if(note.order === i){
+            notes.forEach(note => {
+                if (note.order === i) {
 
                     let noteDiv = document.createElement('div');
                     noteDiv.classList.add('note');
-            
+
                     let noteTitle = document.createElement('h3');
                     noteTitle.classList.add('noteTitle');
                     noteTitle.innerText = note.title;
-            
+
                     let noteContent = document.createElement('p');
                     noteContent.classList.add('noteContent');
                     noteContent.innerText = note.content;
@@ -294,12 +307,12 @@ function renderNotes(category: Category) {
                     categoryContent.value = note.categoryName;
                     categoryContent.classList.add('categoryName');
                     categoryContent.hidden = true;
-                    
+
                     let deleteNoteButton = document.createElement('button');
                     deleteNoteButton.classList.add('deleteNoteButton');
                     deleteNoteButton.innerHTML = '<i class="fa fa-light fa-trash"></i>'
                     deleteNoteButton.addEventListener('click', deleteNote);
-            
+
                     let updateNoteButton = document.createElement('button');
                     updateNoteButton.classList.add('updateNoteButton');
                     updateNoteButton.innerHTML = '<i class="fa fa-edit"></i>'
@@ -317,31 +330,31 @@ function renderNotes(category: Category) {
     }
 }
 
-function clickCategory(e: Event){
+function clickCategory(e: Event) {
 
     let clickedCategory = e.target as Element;
 
     let categoryName = (clickedCategory.querySelector('.categoryName') as HTMLElement).innerText;
 
     categories.forEach(cat => {
-        if(categoryName == cat.name){
+        if (categoryName == cat.name) {
             selectedCategory = cat;
+            localStorage.setItem('selectedCategory', categoryName);
         }
-
     });
     toggleCategories(clickedCategory);
     reRenderNotes(selectedCategory);
 }
 
-function toggleCategories(categoryElm: Element){
+function toggleCategories(categoryElm: Element) {
 
     let categories = catDiv.children;
 
     for (let i = 0; i < categories.length; i++) {
-        if(categoryElm === categories[i]) {
+        if (categoryElm === categories[i]) {
 
             categories[i].classList.add('selectedCategory');
-        }else {
+        } else {
             categories[i].classList.remove('selectedCategory');
         }
     }
@@ -353,7 +366,7 @@ function deleteCategory(event: Event) {
 
     const item = event.target as Element;
 
-    if(item.classList[0] === 'deleteCatButton') {
+    if (item.classList[0] === 'deleteCatButton') {
 
         let category = item.parentElement as HTMLElement;
         let categoryName: string = (category.querySelector('.categoryName') as HTMLElement).innerText;
@@ -362,20 +375,20 @@ function deleteCategory(event: Event) {
 
 
         categories.forEach(cat => {
-            if(cat.name === categoryName){
-                categories.splice(categories.indexOf(cat),1);
+            if (cat.name === categoryName) {
+                categories.splice(categories.indexOf(cat), 1);
             }
         });
-        
+
         let index = 1;
         categories.forEach(cat => {
             cat.order = index;
             index++;
         });
 
-        localStorage.setItem('categories',JSON.stringify(categories));
+        localStorage.setItem('categories', JSON.stringify(categories));
 
-        if(selectedCategory.name === categoryName) {
+        if (selectedCategory.name === categoryName) {
 
 
             deSelectedCategory();
@@ -391,7 +404,7 @@ function updateCategory(event: Event) {
 
     const item = event.target as Element;
 
-    if(item.classList[0] === 'updateCatButton') {
+    if (item.classList[0] === 'updateCatButton') {
 
         let category = item.parentElement as HTMLElement;
         (category.querySelector('.categoryName') as HTMLElement).hidden = true;
@@ -404,7 +417,7 @@ function updateCategory(event: Event) {
 function updateNameCategory(event: Event) {
 
     const item = event.target as Element;
-    if(item.classList[0] === 'categoryUpdateButton') {
+    if (item.classList[0] === 'categoryUpdateButton') {
 
         let category = item.parentElement?.parentElement as HTMLElement;
 
@@ -413,14 +426,14 @@ function updateNameCategory(event: Event) {
         let categoryUpdateDiv = (category.querySelector('.updateCategoryDiv') as HTMLElement);
         let categoryName = (categoryUpdateDiv.querySelector('.categoryTextInput') as HTMLInputElement).value;
         oldCategory.innerText = categoryName;
-        
+
         categories.forEach(cat => {
-            if(cat.name === oldCategoryName){
+            if (cat.name === oldCategoryName) {
                 cat.name = categoryName;
             }
         });
 
-        localStorage.setItem('categories',JSON.stringify(categories));
+        localStorage.setItem('categories', JSON.stringify(categories));
 
         reRenderNotes(selectedCategory);
         reRenderCategories();
@@ -430,15 +443,15 @@ function updateNameCategory(event: Event) {
 function deleteNote(event: Event) {
     const item = event.target as Element;
 
-    if(item.classList[0] === 'deleteNoteButton') {
+    if (item.classList[0] === 'deleteNoteButton') {
         const note = item.parentElement as HTMLElement;
         let noteTitle: string = (note.querySelector('.noteTitle') as HTMLElement).innerText;
 
         let notes = selectedCategory.notes;
 
         notes.forEach(note => {
-            if(noteTitle == note.title) {
-                notes.splice(notes.indexOf(note),1);
+            if (noteTitle == note.title) {
+                notes.splice(notes.indexOf(note), 1);
             }
         });
 
@@ -454,14 +467,14 @@ function deleteNote(event: Event) {
     }
 }
 
-function deSelectedCategory(){
+function deSelectedCategory() {
     // @ts-ignore
     selectedCategory = undefined;
 
     let categories = catDiv.children;
 
     for (let i = 0; i < categories.length; i++) {
-            categories[i].classList.remove('selectedCategory');
+        categories[i].classList.remove('selectedCategory');
 
     }
 
@@ -472,26 +485,24 @@ function selectCategory(category: Category) {
     selectedCategory = category;
 
     let catElms = catDiv.children;
-
     for (let i = 0; i < catElms.length; i++) {
         let catTitle = (catElms[i].querySelector('.categoryName') as HTMLElement).innerText;
-
-        if(catTitle === category.name) {
+        if (catTitle === category.name) {
             toggleCategories(catElms[i]);
         }
     }
 }
 
-function reRenderNotes(cat: Category){
+function reRenderNotes(cat: Category) {
     notesDiv.innerHTML = '';
     renderNotes(cat);
 }
 
-function reRenderCategories(){
+function reRenderCategories() {
     catDiv.innerHTML = '';
     renderCategories(categories);
 }
 
 
-        
+
 
